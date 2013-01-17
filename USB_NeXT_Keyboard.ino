@@ -78,6 +78,21 @@ void queryKeyboard() {
   digitalWrite(KEYBOARDOUT, HIGH); 
 }
 
+void queryMouse() {
+  // query the mouse for data
+  digitalWrite(KEYBOARDOUT, LOW);
+  delayMicroseconds(TIMING *1);
+  digitalWrite(KEYBOARDOUT, HIGH);  
+  delayMicroseconds(TIMING *1);  
+  digitalWrite(KEYBOARDOUT, LOW);
+  delayMicroseconds(TIMING *3);
+  digitalWrite(KEYBOARDOUT, HIGH);  
+  delayMicroseconds(TIMING *1);  
+  digitalWrite(KEYBOARDOUT, LOW);
+  delayMicroseconds(TIMING *3);
+  digitalWrite(KEYBOARDOUT, HIGH);  
+}
+
 void nextreset() {
   // reset the keyboard
   digitalWrite(KEYBOARDOUT, LOW);
@@ -115,6 +130,7 @@ void setup() {
   delay(8);
   
   Keyboard.begin();
+  Mouse.begin();
 
 #ifdef DEBUG
   while (!Serial)
@@ -142,9 +158,49 @@ uint32_t getresponse() {
 void loop() {
   digitalWrite(LED, LOW);
   delay(20);
-  uint32_t resp;
+  uint32_t resp, respMouse;
   queryKeyboard();
   resp = getresponse();
+  queryMouse();
+  respMouse = getresponse();
+  
+  if (respMouse != NEXT_KMBUS_IDLE) {
+
+    // buttons
+    if (respMouse & 0x1000)
+      Mouse.release(MOUSE_RIGHT);
+    else
+      Mouse.press(MOUSE_RIGHT);
+    
+    if (respMouse & 0x2)
+      Mouse.release(MOUSE_LEFT);
+    else
+      Mouse.press(MOUSE_LEFT);
+
+    // movement
+    int moveX = 0,
+        moveY = 0;
+
+    // check for vertical movement
+    if (respMouse & 0x2000) {
+      // moved vertically, now which direction?
+      if (respMouse & 0xFC000)
+        moveY = 10;
+      else
+        moveY = -10;
+    }
+    
+    // check for horizontal movement
+    if (respMouse & 0x04) {
+      // moved horizontally, now which direction?
+      if (respMouse & 0x1F8)
+        moveX = 10;
+      else
+        moveX = -10;
+    }
+
+    Mouse.move(moveX, moveY, 0);
+  }
 
   // check for a 'idle' response, we'll do nothing
   if (resp == NEXT_KMBUS_IDLE) return;
