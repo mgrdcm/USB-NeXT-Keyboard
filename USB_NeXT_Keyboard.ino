@@ -67,7 +67,7 @@ void setLEDs(bool leftLED, bool rightLED) {
   digitalWrite(KEYBOARDOUT, HIGH);
 }
 
-void query() {
+void queryKeyboard() {
   // query the keyboard for data
   digitalWrite(KEYBOARDOUT, LOW);
   delayMicroseconds(TIMING *5);
@@ -104,12 +104,12 @@ void setup() {
   misopin = digitalPinToBitMask(KEYBOARDIN);
   
   // according to http://cfile7.uf.tistory.com/image/14448E464F410BF22380BB
-  query();
+  queryKeyboard();
   delay(5);
   nextreset();
   delay(8);
   
-  query();
+  queryKeyboard();
   delay(5);
   nextreset();
   delay(8);
@@ -143,7 +143,7 @@ void loop() {
   digitalWrite(LED, LOW);
   delay(20);
   uint32_t resp;
-  query();
+  queryKeyboard();
   resp = getresponse();
 
   // check for a 'idle' response, we'll do nothing
