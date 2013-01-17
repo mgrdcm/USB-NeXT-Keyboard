@@ -152,7 +152,6 @@ uint32_t getresponse() {
   }
   sei();
   return data;
-
 }
 
 void loop() {
@@ -164,7 +163,12 @@ void loop() {
   queryMouse();
   respMouse = getresponse();
   
+  // check for mouse input
   if (respMouse != NEXT_KMBUS_IDLE) {
+
+#ifdef DEBUG
+    Serial.print("MOUSE: "); Serial.print(respMouse, HEX); Serial.print(" / "); Serial.println(respMouse, BIN);
+#endif
 
     // buttons
     if (respMouse & 0x1000)
