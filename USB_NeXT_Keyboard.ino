@@ -52,8 +52,8 @@ void setLEDs(bool leftLED, bool rightLED) {
   KMBUS_HOLD(HIGH, 3);
   KMBUS_HOLD(LOW, 1);
   
-  KMBUS_HOLD( (leftLED ? HIGH : LOW), 1);
-  KMBUS_HOLD( (rightLED ? HIGH : LOW), 1);
+  KMBUS_HOLD((leftLED ? HIGH : LOW), 1);
+  KMBUS_HOLD((rightLED ? HIGH : LOW), 1);
 
   KMBUS_HOLD(LOW, 7);
   KMBUS_SET(HIGH);
@@ -80,7 +80,7 @@ void queryMouse() {
 }
 
 // reset the bus
-void nextreset() {
+void kmBusReset() {
   // |_----_------__________-|
   KMBUS_HOLD(LOW, 1);
   KMBUS_HOLD(HIGH, 4);
@@ -103,12 +103,12 @@ void setup() {
   // according to http://cfile7.uf.tistory.com/image/14448E464F410BF22380BB
   queryKeyboard();
   delay(5);
-  nextreset();
+  kmBusReset();
   delay(8);
   
   queryKeyboard();
   delay(5);
-  nextreset();
+  kmBusReset();
   delay(8);
   
   Keyboard.begin();
@@ -140,6 +140,7 @@ void loop() {
   digitalWrite(LED, LOW);
   delay(20);
   uint32_t resp, respMouse;
+  
   queryKeyboard();
   resp = getresponse();
   queryMouse();
@@ -210,17 +211,20 @@ void loop() {
   else 
     Keyboard.release(KEY_LEFT_CTRL);
 
+  boolean shiftPressed = false;
+  
   if (resp & NEXT_KB_SHIFT_LEFT) {
     Keyboard.press(KEY_LEFT_SHIFT);
+    shiftPressed = true;
   } else { 
     Keyboard.release(KEY_LEFT_SHIFT);
   }
   if (resp & NEXT_KB_SHIFT_RIGHT) {
     Keyboard.press(KEY_RIGHT_SHIFT);
+    shiftPressed = true;
   } else {
     Keyboard.release(KEY_RIGHT_SHIFT);
   }
-  boolean shiftPressed = (resp & (NEXT_KB_SHIFT_LEFT|NEXT_KB_SHIFT_RIGHT)) != 0;
   
   // turn on shift LEDs if shift is held down
   if (shiftPressed)
