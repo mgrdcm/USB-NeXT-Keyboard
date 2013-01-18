@@ -42,70 +42,52 @@ uint8_t misopin;
 #define NEXT_KB_SHIFT_LEFT 0x2000
 #define NEXT_KB_SHIFT_RIGHT 0x4000
 
+#define KMBUS_SET(signal)  digitalWrite(KEYBOARDOUT, signal);
+#define KMBUS_HOLD(signal, duration)  digitalWrite(KEYBOARDOUT, signal); delayMicroseconds(TIMING * duration);
+
 // special command for setting LEDs
 void setLEDs(bool leftLED, bool rightLED) {
-  digitalWrite(KEYBOARDOUT, LOW);
-  delayMicroseconds(TIMING *9);
-  digitalWrite(KEYBOARDOUT, HIGH);  
-  delayMicroseconds(TIMING *3);
-  digitalWrite(KEYBOARDOUT, LOW);
-  delayMicroseconds(TIMING);
+  // |_________---_??_______-|
+  KMBUS_HOLD(LOW, 9);
+  KMBUS_HOLD(HIGH, 3);
+  KMBUS_HOLD(LOW, 1);
+  
+  KMBUS_HOLD( (leftLED ? HIGH : LOW), 1);
+  KMBUS_HOLD( (rightLED ? HIGH : LOW), 1);
 
-  if (leftLED)
-      digitalWrite(KEYBOARDOUT, HIGH);
-  else 
-      digitalWrite(KEYBOARDOUT, LOW);
-  delayMicroseconds(TIMING);
-
-  if (rightLED)
-      digitalWrite(KEYBOARDOUT, HIGH);
-  else 
-      digitalWrite(KEYBOARDOUT, LOW);
-  delayMicroseconds(TIMING);
-  digitalWrite(KEYBOARDOUT, LOW);
-  delayMicroseconds(TIMING *7);
-  digitalWrite(KEYBOARDOUT, HIGH);
+  KMBUS_HOLD(LOW, 7);
+  KMBUS_SET(HIGH);
 }
 
+// tell keyboard to send key state
 void queryKeyboard() {
-  // query the keyboard for data
-  digitalWrite(KEYBOARDOUT, LOW);
-  delayMicroseconds(TIMING *5);
-  digitalWrite(KEYBOARDOUT, HIGH);  
-  delayMicroseconds(TIMING );  
-  digitalWrite(KEYBOARDOUT, LOW);
-  delayMicroseconds(TIMING *3);
-  digitalWrite(KEYBOARDOUT, HIGH); 
+  // |_____-___-|
+  KMBUS_HOLD(LOW, 5);
+  KMBUS_HOLD(HIGH, 1);
+  KMBUS_HOLD(LOW, 3);
+  KMBUS_SET(HIGH);
 }
 
+// tell keyboard to send mouse state
 void queryMouse() {
-  // query the mouse for data
-  digitalWrite(KEYBOARDOUT, LOW);
-  delayMicroseconds(TIMING *1);
-  digitalWrite(KEYBOARDOUT, HIGH);  
-  delayMicroseconds(TIMING *1);  
-  digitalWrite(KEYBOARDOUT, LOW);
-  delayMicroseconds(TIMING *3);
-  digitalWrite(KEYBOARDOUT, HIGH);  
-  delayMicroseconds(TIMING *1);  
-  digitalWrite(KEYBOARDOUT, LOW);
-  delayMicroseconds(TIMING *3);
-  digitalWrite(KEYBOARDOUT, HIGH);  
+  // |_-___-___-|
+  KMBUS_HOLD(LOW, 1);
+  KMBUS_HOLD(HIGH, 1);
+  KMBUS_HOLD(LOW, 3);
+  KMBUS_HOLD(HIGH, 1);
+  KMBUS_HOLD(LOW, 3);
+  KMBUS_SET(HIGH);
 }
 
+// reset the bus
 void nextreset() {
-  // reset the keyboard
-  digitalWrite(KEYBOARDOUT, LOW);
-  delayMicroseconds(TIMING);
-  digitalWrite(KEYBOARDOUT, HIGH);  
-  delayMicroseconds(TIMING*4);  
-  digitalWrite(KEYBOARDOUT, LOW);
-  delayMicroseconds(TIMING);
-  digitalWrite(KEYBOARDOUT, HIGH);
-  delayMicroseconds(TIMING*6);
-  digitalWrite(KEYBOARDOUT, LOW);
-  delayMicroseconds(TIMING*10);  
-  digitalWrite(KEYBOARDOUT, HIGH);
+  // |_----_------__________-|
+  KMBUS_HOLD(LOW, 1);
+  KMBUS_HOLD(HIGH, 4);
+  KMBUS_HOLD(LOW, 1);
+  KMBUS_HOLD(HIGH, 6);
+  KMBUS_HOLD(LOW, 10);
+  KMBUS_SET(HIGH);
 }
 
 
