@@ -148,6 +148,9 @@ void loop() {
   
   // check for mouse input
   if (respMouse != NEXT_KMBUS_IDLE) {
+    
+    // turn on the LED when we get real resposes!
+    digitalWrite(LED, HIGH);
 
 #ifdef DEBUG
     Serial.print("MOUSE: "); Serial.print(respMouse, HEX); Serial.print(" / "); Serial.println(respMouse, BIN);
